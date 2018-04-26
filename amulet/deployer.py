@@ -155,7 +155,8 @@ class Deployment(object):
                 constraints=constraints,
                 placement=service_config.get('to', None),
                 series=self.series,
-                storage=service_config.get('storage')
+                storage=service_config.get('storage'),
+                resources=service_config.get('resources')
             )
 
             if service_config.get('options'):
@@ -171,7 +172,8 @@ class Deployment(object):
             branch=None,
             placement=None,
             series=None,
-            storage=None):
+            storage=None,
+            resources=None):
         """Add a new service to the deployment schema.
 
         :param service_name: Name of the service to deploy.
@@ -189,6 +191,8 @@ class Deployment(object):
         :param series: Series of charm to deploy, e.g. precise, trusty, xenial
         :param storage: Storage configuration as a dictionary with key the
             label and value being the pool,size,count string used by Juju.
+        :param resources: Resources configuration as a dictionary with key the
+            resource name and value the local path to the file
 
         Example::
 
@@ -198,6 +202,8 @@ class Deployment(object):
             d.add('second-wp', charm='wordpress')
             d.add('personal-wp', charm='~marcoceppi/wordpress', units=2)
             d.add('postgresql', storage={'pgdata', 'rootfs,50M'})
+            d.add('etcd', resources={'snapshot': './snapshot.tgz',
+                                     'etcd': 'etcd.snap'})
 
         """
         if self.deployed:
@@ -213,6 +219,11 @@ class Deployment(object):
             if not isinstance(storage, dict):
                 raise ValueError('Storage must be specified as a dict')
             service['storage'] = storage
+
+        if resources is not None:
+            if not isinstance(resources, dict):
+                raise ValueError('Resources must be specified as a dict')
+            service['resources'] = resources
 
         charm = self.charm_cache.fetch(
             service_name, charm, branch=branch, series=service['series'])
