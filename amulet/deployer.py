@@ -557,6 +557,38 @@ class Deployment(object):
         else:
             self.services[service]['options'].update(options)
 
+    def attach(self, service, resources):
+        """Attaches resources to a service (deployed or not).
+
+        :param service: Name of the service to hold the attachments
+        :param resources: Dictionary of resources to attach
+
+        Example:
+
+            import amulet
+            d = amulet.Deployment()
+            d.add('etcd')
+            d.attach('etc', {'snapshot': 'snapshot.tgz'})
+
+        """
+        if JUJU_VERSION.major == 1:
+            raise NotImplementedError(
+                'Resources feature not implemented in this juju version')
+
+        if self.deployed:
+            args = ['attach', service]
+            for k, v in resources.items():
+                args.append("%s=%s" % (k, v))
+            return juju(args)
+
+        if service not in self.services:
+            raise ValueError('Service has not yet been described')
+
+        if 'resources' not in self.services[service]:
+            self.services[service]['resources'] = resources
+        else:
+            self.services[service]['resources'].update(resources)
+
     def expose(self, service):
         """Expose a service.
 
