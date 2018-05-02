@@ -12,7 +12,6 @@ EOR
 
 if [[ $JUJU_VERSION == 2 ]]; then
     sudo add-apt-repository -y ppa:juju/stable
-    sudo add-apt-repository -y ppa:ubuntu-lxc/lxd-stable
     JUJU_PKGS="juju lxd"
 else
     sudo add-apt-repository -y ppa:juju/1.25
@@ -20,7 +19,7 @@ else
 fi
 
 sudo apt-get update
-sudo apt-get install -y bzr $JUJU_PKGS
+sudo apt-get install -t trusty-backports -y bzr $JUJU_PKGS
 
 if [[ $JUJU_VERSION == 2 ]]; then
     echo User: $USER
